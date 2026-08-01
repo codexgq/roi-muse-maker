@@ -21,7 +21,7 @@ Keep it lean: native `contentEditable` / `<textarea>` overlays on the existing p
 - **Edit** (WYSIWYG paginated — replaces both "Editor" and "PDF preview")
 - **Share** (unchanged)
 
-The `Pages match the exported PDF` strip and "Edit content" jump-link disappear (the editor *is* the preview now). Export PDF button stays in the toolbar.
+The `Pages match the exported PDF` strip and "Edit content" jump-link disappear (the editor _is_ the preview now). Export PDF button stays in the toolbar.
 
 ### 3. Per-block AI assist stays
 

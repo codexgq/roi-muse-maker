@@ -6,7 +6,7 @@ const messagesSchema = z.array(
   z.object({
     role: z.enum(["system", "user", "assistant"]),
     content: z.string(),
-  })
+  }),
 );
 
 const enrichSchema = z.object({
@@ -38,11 +38,30 @@ const RESEARCH_TOOL = {
     parameters: {
       type: "object",
       properties: {
-        snapshot: { type: "string", description: "2-3 sentence overview of the company, what they do, scale, recent moves." },
-        pain_points: { type: "array", items: { type: "string" }, description: "3-5 specific operational pain points." },
-        why_we_fit: { type: "array", items: { type: "string" }, description: "3-5 reasons our product specifically helps them. Cite their context." },
-        talking_points: { type: "array", items: { type: "string" }, description: "3-5 sales-call talking points / discovery questions." },
-        recent_news: { type: "array", items: { type: "string" }, description: "Recent news / signals (only if known)." },
+        snapshot: {
+          type: "string",
+          description: "2-3 sentence overview of the company, what they do, scale, recent moves.",
+        },
+        pain_points: {
+          type: "array",
+          items: { type: "string" },
+          description: "3-5 specific operational pain points.",
+        },
+        why_we_fit: {
+          type: "array",
+          items: { type: "string" },
+          description: "3-5 reasons our product specifically helps them. Cite their context.",
+        },
+        talking_points: {
+          type: "array",
+          items: { type: "string" },
+          description: "3-5 sales-call talking points / discovery questions.",
+        },
+        recent_news: {
+          type: "array",
+          items: { type: "string" },
+          description: "Recent news / signals (only if known).",
+        },
       },
       required: ["snapshot", "pain_points", "why_we_fit", "talking_points"],
       additionalProperties: false,
@@ -59,8 +78,10 @@ async function callGateway(body: Record<string, unknown>) {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    if (res.status === 429) throw new Error("Rate limit hit — slow down or top up Lovable AI credits.");
-    if (res.status === 402) throw new Error("Lovable AI credits exhausted. Add credits in Settings → Workspace → Usage.");
+    if (res.status === 429)
+      throw new Error("Rate limit hit — slow down or top up Lovable AI credits.");
+    if (res.status === 402)
+      throw new Error("Lovable AI credits exhausted. Add credits in Settings → Workspace → Usage.");
     const t = await res.text();
     throw new Error(`AI gateway error ${res.status}: ${t.slice(0, 200)}`);
   }
@@ -112,12 +133,16 @@ export const enrichCompany = createServerFn({ method: "POST" })
       "You are a senior sales engineer doing pre-call research on a PROSPECT company on behalf of MY COMPANY.",
       "Return crisp, specific, fact-grounded intel — no fluff, no marketing language.",
       data.myCompany ? `MY COMPANY (the seller): ${data.myCompany}` : "",
-      data.myProduct ? `WHAT MY COMPANY SELLS (use this verbatim as the basis for 'why_we_fit' — do NOT invent a different product, do NOT guess what the seller does):\n${data.myProduct}` : "",
+      data.myProduct
+        ? `WHAT MY COMPANY SELLS (use this verbatim as the basis for 'why_we_fit' — do NOT invent a different product, do NOT guess what the seller does):\n${data.myProduct}`
+        : "",
       "CRITICAL: 'why_we_fit' must explain how the product described in WHAT MY COMPANY SELLS specifically helps the PROSPECT. Never fabricate seller capabilities. If the seller's product genuinely doesn't map to a prospect pain point, say so honestly rather than inventing a fit.",
       data.mode === "deep"
         ? "Use the SCRAPED WEBSITE CONTENT below as primary source of truth about the PROSPECT. Cite specifics from it. If thin, supplement with general knowledge but flag uncertainty."
         : "Be concise. Infer reasonably from the input — don't fabricate specifics about the prospect.",
-    ].filter(Boolean).join("\n\n");
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     // Worker has a tight CPU budget; use flash even for deep — scraped content is the differentiator, not the model.
     const model = "google/gemini-2.5-flash";
@@ -156,8 +181,16 @@ const SUMMARY_TOOL = {
     parameters: {
       type: "object",
       properties: {
-        summary: { type: "string", description: "2-3 paragraph executive summary using the provided metrics. Lead with impact." },
-        talking_points: { type: "array", items: { type: "string" }, description: "5 punchy talking points for the sales call." },
+        summary: {
+          type: "string",
+          description:
+            "2-3 paragraph executive summary using the provided metrics. Lead with impact.",
+        },
+        talking_points: {
+          type: "array",
+          items: { type: "string" },
+          description: "5 punchy talking points for the sales call.",
+        },
       },
       required: ["summary", "talking_points"],
       additionalProperties: false,
@@ -187,7 +220,11 @@ ${data.context ? `EXTRA CONTEXT: ${data.context}` : ""}
     const result = await callGateway({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: "You write executive-ready ROI business cases. Tight, confident, numbers-first. No hype words." },
+        {
+          role: "system",
+          content:
+            "You write executive-ready ROI business cases. Tight, confident, numbers-first. No hype words.",
+        },
         { role: "user", content: ctx },
       ],
       tools: [SUMMARY_TOOL],
@@ -242,7 +279,8 @@ const BLOCK_GUIDE: Record<string, string> = {
   intro: "One short paragraph (1-2 sentences) introducing the business case.",
   exec_summary: "2-3 short paragraphs. Numbers-first, executive tone, no hype words.",
   why_we_fit_item: "ONE single bullet (1 sentence). Specific, no preamble, no list markers.",
-  talking_point: "ONE single bullet (1 sentence) — a discovery question or talking point. No list markers.",
+  talking_point:
+    "ONE single bullet (1 sentence) — a discovery question or talking point. No list markers.",
   cta: "One short call-to-action paragraph (1-2 sentences). Confident, concrete next step.",
 };
 
@@ -260,8 +298,7 @@ export const rewriteBlock = createServerFn({ method: "POST" })
         `ANNUAL GAIN: $${Math.round(c.annualGain).toLocaleString()}`,
       typeof c.threeYearValue === "number" &&
         `3-YEAR VALUE: $${Math.round(c.threeYearValue).toLocaleString()}`,
-      typeof c.paybackMonths === "number" &&
-        `PAYBACK: ${c.paybackMonths.toFixed(1)} months`,
+      typeof c.paybackMonths === "number" && `PAYBACK: ${c.paybackMonths.toFixed(1)} months`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -344,16 +381,12 @@ export const extractBranding = createServerFn({ method: "POST" })
     const fonts: Array<{ family?: string }> = b.fonts ?? [];
     const images = b.images ?? {};
     const primary: string | undefined = colors.primary || colors.accent;
-    const secondary: string | undefined =
-      colors.secondary || colors.accent || colors.primary;
+    const secondary: string | undefined = colors.secondary || colors.accent || colors.primary;
     const heading =
       b.typography?.fontFamilies?.heading ||
       b.typography?.fontFamilies?.primary ||
       fonts[0]?.family;
-    const body =
-      b.typography?.fontFamilies?.primary ||
-      fonts[1]?.family ||
-      fonts[0]?.family;
+    const body = b.typography?.fontFamilies?.primary || fonts[1]?.family || fonts[0]?.family;
 
     return {
       url,
@@ -385,9 +418,17 @@ function isPrivateHost(hostname: string): boolean {
     h.endsWith(".local") ||
     h.endsWith(".internal") ||
     h.endsWith(".localhost")
-  ) return true;
+  )
+    return true;
   // IPv6 loopback / link-local / unique-local
-  if (h === "::1" || h.startsWith("[::1") || h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe80")) return true;
+  if (
+    h === "::1" ||
+    h.startsWith("[::1") ||
+    h.startsWith("fc") ||
+    h.startsWith("fd") ||
+    h.startsWith("fe80")
+  )
+    return true;
   // IPv4 literal?
   const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (!m) return false;
@@ -407,7 +448,11 @@ export const proxyImageAsDataUrl = createServerFn({ method: "POST" })
   .inputValidator((d) => proxyImageSchema.parse(d))
   .handler(async ({ data }) => {
     let parsed: URL;
-    try { parsed = new URL(data.url); } catch { throw new Error("Invalid URL"); }
+    try {
+      parsed = new URL(data.url);
+    } catch {
+      throw new Error("Invalid URL");
+    }
     if (parsed.protocol !== "https:") throw new Error("Only https URLs are allowed");
     if (isPrivateHost(parsed.hostname)) throw new Error("Host not allowed");
     const ctrl = new AbortController();
