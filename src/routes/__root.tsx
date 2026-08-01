@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 
@@ -112,6 +113,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <Toaster position="bottom-right" />
+      <Analytics />
     </QueryClientProvider>
   );
 }
