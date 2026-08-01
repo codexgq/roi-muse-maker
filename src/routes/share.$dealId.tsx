@@ -114,8 +114,12 @@ function SharePage() {
     if (link.href !== href) link.href = href;
   }, [headingFont, bodyFont]);
 
-  const headingStyle = headingFont ? { fontFamily: `"${headingFont}", ui-sans-serif, system-ui` } : undefined;
-  const bodyStyle = bodyFont ? { fontFamily: `"${bodyFont}", ui-sans-serif, system-ui` } : undefined;
+  const headingStyle = headingFont
+    ? { fontFamily: `"${headingFont}", ui-sans-serif, system-ui` }
+    : undefined;
+  const bodyStyle = bodyFont
+    ? { fontFamily: `"${bodyFont}", ui-sans-serif, system-ui` }
+    : undefined;
 
   if (loading) {
     return (
@@ -155,7 +159,7 @@ function SharePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 relative">
           {/* Prospect */}
           <div className="flex items-center gap-3 min-w-0">
-            {(deal.prospect_logo_url || pBrand?.logo) ? (
+            {deal.prospect_logo_url || pBrand?.logo ? (
               <img
                 src={(deal.prospect_logo_url || pBrand?.logo) as string}
                 alt={prospect}
@@ -171,7 +175,9 @@ function SharePage() {
               >
                 Prepared for
               </p>
-              <p className="text-sm font-bold truncate" style={headingStyle}>{prospect}</p>
+              <p className="text-sm font-bold truncate" style={headingStyle}>
+                {prospect}
+              </p>
             </div>
           </div>
           {/* Divider */}
@@ -185,7 +191,11 @@ function SharePage() {
               <p className="text-sm font-bold truncate">{brand.company_name || "Your team"}</p>
             </div>
             {brand.brand_logo_url ? (
-              <img src={brand.brand_logo_url} alt={brand.company_name} className="h-9 object-contain shrink-0" />
+              <img
+                src={brand.brand_logo_url}
+                alt={brand.company_name}
+                className="h-9 object-contain shrink-0"
+              />
             ) : (
               <div className="size-9 rounded-md bg-muted shrink-0" />
             )}
@@ -204,19 +214,34 @@ function SharePage() {
               Adjust the numbers
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Move any slider to see how the projected return changes in real time. Nothing here is saved.
+              Move any slider to see how the projected return changes in real time. Nothing here is
+              saved.
             </p>
           </div>
 
-          <Group title="Your inputs" fields={template.parameters ?? []} values={values} setValues={setValues} accent={accent} />
-          <Group title="Expected returns" fields={template.returns ?? []} values={values} setValues={setValues} accent={accent} />
+          <Group
+            title="Your inputs"
+            fields={template.parameters ?? []}
+            values={values}
+            setValues={setValues}
+            accent={accent}
+          />
+          <Group
+            title="Expected returns"
+            fields={template.returns ?? []}
+            values={values}
+            setValues={setValues}
+            accent={accent}
+          />
         </section>
 
         {/* Results */}
         <aside className="lg:col-span-2">
           <div className="lg:sticky lg:top-6 space-y-4">
             <div className="rounded-2xl p-5 text-white shadow-lg" style={{ background: accent }}>
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">Projected ROI</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+                Projected ROI
+              </p>
               <div className="text-4xl font-bold mt-1 tabular-nums">
                 {Number.isFinite(computed.roiPercent) ? formatPercent(computed.roiPercent) : "—"}
               </div>
@@ -338,8 +363,8 @@ function FieldRow({
     field.type === "currency"
       ? formatCurrency(value)
       : field.type === "percent"
-      ? formatPercent(value, value < 10 ? 1 : 0)
-      : `${formatNumber(value)}${field.unit ? ` ${field.unit}` : ""}`;
+        ? formatPercent(value, value < 10 ? 1 : 0)
+        : `${formatNumber(value)}${field.unit ? ` ${field.unit}` : ""}`;
 
   return (
     <div>

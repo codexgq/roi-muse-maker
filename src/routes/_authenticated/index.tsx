@@ -47,7 +47,13 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { enrichCompany, extractBranding, generateSummary, proxyImageAsDataUrl, rewriteBlock } from "@/lib/ai.functions";
+import {
+  enrichCompany,
+  extractBranding,
+  generateSummary,
+  proxyImageAsDataUrl,
+  rewriteBlock,
+} from "@/lib/ai.functions";
 import type { Template, Field, Formula, Deal, ResearchResult } from "@/lib/types";
 import roiBubble from "@/assets/roi-bubble.png";
 import { compute } from "@/lib/calc";
@@ -69,8 +75,8 @@ type BrandTheme = {
   id: string;
   name: string;
   primary: string; // oklch for --primary / --ring
-  from: string;    // gradient start hex (logo dot, action buttons)
-  to: string;      // gradient end hex
+  from: string; // gradient start hex (logo dot, action buttons)
+  to: string; // gradient end hex
   gradient: string; // for dark results card background
 };
 
@@ -607,9 +613,10 @@ function Page() {
 
   // Load prospect brand fonts via Google Fonts and expose as CSS vars
   useEffect(() => {
-    const brand = (deal?.prospect_brand ?? null) as
-      | { headingFont?: string | null; bodyFont?: string | null }
-      | null;
+    const brand = (deal?.prospect_brand ?? null) as {
+      headingFont?: string | null;
+      bodyFont?: string | null;
+    } | null;
     const root = document.documentElement;
     const heading = brand?.headingFont?.trim();
     const body = brand?.bodyFont?.trim();
@@ -681,12 +688,24 @@ function Page() {
       try {
         const { data, error } = await supabase
           .from("deals")
-          .select("id,name,prospect_company,updated_at,report,template_id,template_snapshot,color_theme")
+          .select(
+            "id,name,prospect_company,updated_at,report,template_id,template_snapshot,color_theme",
+          )
           .order("updated_at", { ascending: false })
           .limit(50);
         if (error) throw error;
         return (data ?? []) as unknown as Array<
-          Pick<Deal, "id" | "name" | "prospect_company" | "updated_at" | "report" | "template_id" | "template_snapshot" | "color_theme">
+          Pick<
+            Deal,
+            | "id"
+            | "name"
+            | "prospect_company"
+            | "updated_at"
+            | "report"
+            | "template_id"
+            | "template_snapshot"
+            | "color_theme"
+          >
         >;
       } catch (error) {
         console.warn("Deals list unavailable.", error);
@@ -717,9 +736,13 @@ function Page() {
             templates[0];
           // Auto-migrate stale built-in deals whose snapshot predates the current
           // built-in field set (e.g. old hours_saved_per_user defaults).
-          const builtin = BUILTIN_TEMPLATES.find((b) => b.id === d.template_id || b.id === snapshot?.id);
+          const builtin = BUILTIN_TEMPLATES.find(
+            (b) => b.id === d.template_id || b.id === snapshot?.id,
+          );
           const snapshotKeys = snapshot
-            ? new Set([...(snapshot.parameters ?? []), ...(snapshot.returns ?? [])].map((f) => f.key))
+            ? new Set(
+                [...(snapshot.parameters ?? []), ...(snapshot.returns ?? [])].map((f) => f.key),
+              )
             : null;
           const builtinKeys = builtin
             ? new Set([...builtin.parameters, ...builtin.returns].map((f) => f.key))
@@ -863,11 +886,7 @@ function Page() {
       return;
     }
     try {
-      const { data, error } = await supabase
-        .from("deals")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.from("deals").select("*").eq("id", id).single();
       if (error) throw error;
       const d = data as unknown as Deal;
       const snapshot = d.template_snapshot as Template | null;
@@ -1030,10 +1049,15 @@ function Page() {
             </svg>
             <div className="hidden sm:flex flex-col leading-none">
               <span className="font-black tracking-[-0.02em] text-[15px] text-foreground">
-                ROI<span
+                ROI
+                <span
                   className="bg-clip-text text-transparent"
-                  style={{ backgroundImage: "linear-gradient(90deg, var(--brand-from), var(--brand-to))" }}
-                >.</span>
+                  style={{
+                    backgroundImage: "linear-gradient(90deg, var(--brand-from), var(--brand-to))",
+                  }}
+                >
+                  .
+                </span>
               </span>
               <span className="mt-[3px] font-medium uppercase text-[8.5px] tracking-[0.22em] text-muted-foreground">
                 SALES COMPANION
@@ -1193,9 +1217,7 @@ function Page() {
                               <span className="text-sm font-medium truncate">
                                 {d.name || "Untitled Deal"}
                               </span>
-                              {active && (
-                                <CheckCircle2 className="size-3 text-primary shrink-0" />
-                              )}
+                              {active && <CheckCircle2 className="size-3 text-primary shrink-0" />}
                               {hasReport && (
                                 <span className="shrink-0 text-[9px] font-mono uppercase tracking-wider text-primary/80 px-1.5 py-0.5 rounded bg-primary/10">
                                   Report
@@ -1414,12 +1436,13 @@ function Calculator({
         <header className="text-center space-y-3 max-w-3xl mx-auto">
           <h1
             className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tighter"
-            style={{ fontFamily: 'Urbanist, system-ui, -apple-system, sans-serif' }}
+            style={{ fontFamily: "Urbanist, system-ui, -apple-system, sans-serif" }}
           >
             Calculate your <span className="text-primary">potential</span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground text-balance">
-            Estimate the return on investment for your solution. Adjust parameters to see projected savings.
+            Estimate the return on investment for your solution. Adjust parameters to see projected
+            savings.
           </p>
         </header>
 
@@ -1632,7 +1655,12 @@ function ResultsCard({
           {SCENARIOS.map((s) => {
             const active = s.key === scenario;
             const mult = Math.round((template.scenarios[s.key] ?? 1) * 100);
-            const Icon = s.key === "conservative" ? ShieldCheck : s.key === "expected" ? BarChart3 : TrendingUp;
+            const Icon =
+              s.key === "conservative"
+                ? ShieldCheck
+                : s.key === "expected"
+                  ? BarChart3
+                  : TrendingUp;
             return (
               <button
                 key={s.key}
@@ -1651,10 +1679,12 @@ function ResultsCard({
                 )}
                 <Icon className="size-3 shrink-0" />
                 <span className="truncate">{s.label}</span>
-                <span className={cn(
-                  "shrink-0 px-1 py-0.5 text-[9px] font-mono rounded",
-                  active ? "bg-primary/40 text-white" : "bg-white/[0.06] text-white/50",
-                )}>
+                <span
+                  className={cn(
+                    "shrink-0 px-1 py-0.5 text-[9px] font-mono rounded",
+                    active ? "bg-primary/40 text-white" : "bg-white/[0.06] text-white/50",
+                  )}
+                >
                   {mult}%
                 </span>
               </button>
@@ -1671,15 +1701,25 @@ function ResultsCard({
               format={(n) => formatNumber(Math.max(-999, Math.min(99999, n)))}
             />
           </span>
-          <span className="text-3xl sm:text-4xl font-bold ml-1" style={{ color: "var(--metric-accent)" }}>%</span>
+          <span
+            className="text-3xl sm:text-4xl font-bold ml-1"
+            style={{ color: "var(--metric-accent)" }}
+          >
+            %
+          </span>
         </div>
         <p className="mt-1 text-xs text-white/55">Total Return on Investment</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div className="rounded-xl bg-white/[0.04] ring-1 ring-white/[0.06] p-4">
-          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">Annual Savings</span>
-          <p className="mt-1.5 text-xl font-bold tabular-nums" style={{ color: "var(--metric-accent)" }}>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">
+            Annual Savings
+          </span>
+          <p
+            className="mt-1.5 text-xl font-bold tabular-nums"
+            style={{ color: "var(--metric-accent)" }}
+          >
             <AnimatedNumber
               value={computed.annualGain}
               format={(n) => formatCurrency(n, { compact: n >= 1_000_000 })}
@@ -1687,7 +1727,9 @@ function ResultsCard({
           </p>
         </div>
         <div className="rounded-xl bg-white/[0.04] ring-1 ring-white/[0.06] p-4">
-          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">3-Year Value</span>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">
+            3-Year Value
+          </span>
           <p className="mt-1.5 text-xl font-bold tabular-nums text-white">
             <AnimatedNumber
               value={computed.threeYearValue}
@@ -1699,7 +1741,9 @@ function ResultsCard({
 
       <div className="rounded-xl bg-white/[0.04] ring-1 ring-white/[0.06] p-4 mb-5 flex items-center justify-between">
         <div>
-          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">Payback Period</span>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-white/50">
+            Payback Period
+          </span>
           <p className="mt-1.5 text-xl font-bold tabular-nums text-white">{paybackLabel}</p>
         </div>
         {isFast && (
@@ -1716,7 +1760,10 @@ function ResultsCard({
         </div>
         <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden flex">
           <div className="h-full bg-white/30" style={{ width: `${costPct}%` }} />
-          <div className="h-full" style={{ width: `${100 - costPct}%`, background: "var(--metric-accent)" }} />
+          <div
+            className="h-full"
+            style={{ width: `${100 - costPct}%`, background: "var(--metric-accent)" }}
+          />
         </div>
         <p className="mt-4 text-center text-[11px] text-white/45 italic">
           Expected outcome based on typical implementation
@@ -2418,13 +2465,7 @@ function BrandingSection({ deal, persist }: { deal: Deal; persist: (p: Partial<D
   );
 }
 
-function CustomBrandPicker({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (id: string) => void;
-}) {
+function CustomBrandPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
   const parsed = parseCustomTheme(value);
   const active = !!parsed;
   const [from, setFrom] = useState(parsed?.from ?? "#7c3aed");
@@ -2637,9 +2678,7 @@ function ResearchPanel({
       });
 
       // Derive a domain to use for logo fallbacks
-      const domainMatch = query
-        .trim()
-        .match(/^(?:https?:\/\/)?(?:www\.)?([^\/\s]+)/i);
+      const domainMatch = query.trim().match(/^(?:https?:\/\/)?(?:www\.)?([^\/\s]+)/i);
       const domain = domainMatch?.[1]?.toLowerCase() || null;
       const fallbackLogo = domain ? `https://logo.clearbit.com/${domain}` : null;
 
@@ -2659,7 +2698,10 @@ function ResearchPanel({
         toast.success(b.logo ? "Brand pulled in from site" : "Logo guessed from domain");
       } else {
         // Firecrawl failed — still try to save a logo guess so the report isn't bare
-        console.warn("extractBranding failed:", brandResult.status === "rejected" ? brandResult.reason : "no value");
+        console.warn(
+          "extractBranding failed:",
+          brandResult.status === "rejected" ? brandResult.reason : "no value",
+        );
         if (fallbackLogo && !deal.prospect_logo_url) {
           persist({
             prospect_logo_url: fallbackLogo,
@@ -2789,7 +2831,9 @@ function ResearchPanel({
             onClick={run}
             disabled={loading}
             className="w-full flex items-center justify-center gap-1.5 py-2 text-white text-[11px] font-bold uppercase tracking-wider rounded-full transition active:scale-[0.98] disabled:opacity-60 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)] hover:opacity-90"
-            style={{ backgroundImage: "linear-gradient(90deg, var(--brand-from), var(--brand-to))" }}
+            style={{
+              backgroundImage: "linear-gradient(90deg, var(--brand-from), var(--brand-to))",
+            }}
           >
             {loading ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -3048,7 +3092,10 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
             </label>
             <div
               className={`flex items-center gap-3 rounded-md transition ${dragOver ? "ring-2 ring-primary ring-offset-2 ring-offset-card bg-primary/5" : ""}`}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => {
                 e.preventDefault();
@@ -3214,8 +3261,8 @@ function StartHereGuide({ onClose }: { onClose: () => void }) {
           Build a branded ROI business case in five minutes
         </h2>
         <p className="mt-1.5 text-[13px] text-muted-foreground">
-          A quick tour of the calculator, the AI research panel, and the report export — written
-          for this exact app.
+          A quick tour of the calculator, the AI research panel, and the report export — written for
+          this exact app.
         </p>
       </div>
 
@@ -3257,7 +3304,9 @@ function StartHereGuide({ onClose }: { onClose: () => void }) {
         <Step n={4} icon={Sigma} title="Tune the numbers">
           <p>
             Edit any input on the left. Results recompute live. Use the{" "}
-            <span className="font-medium text-foreground">Conservative / Expected / Optimistic</span>{" "}
+            <span className="font-medium text-foreground">
+              Conservative / Expected / Optimistic
+            </span>{" "}
             tabs to stress-test the case. Formulas live in the template — you can save a customized
             version via <span className="font-mono text-[11.5px]">Save current as template…</span>.
           </p>
@@ -3282,11 +3331,14 @@ function StartHereGuide({ onClose }: { onClose: () => void }) {
             </li>
             <li className="flex gap-2">
               <ListChecks className="size-3.5 mt-0.5 shrink-0 text-foreground/60" />
-              Your own logo and company name live in <span className="font-medium text-foreground">Settings</span> (gear icon) and appear in every report.
+              Your own logo and company name live in{" "}
+              <span className="font-medium text-foreground">Settings</span> (gear icon) and appear
+              in every report.
             </li>
             <li className="flex gap-2">
               <ListChecks className="size-3.5 mt-0.5 shrink-0 text-foreground/60" />
-              The report theme gradient uses the prospect's brand colors — override the second color via the Custom theme picker in the report editor.
+              The report theme gradient uses the prospect's brand colors — override the second color
+              via the Custom theme picker in the report editor.
             </li>
           </ul>
         </div>
@@ -3302,8 +3354,8 @@ function StartHereGuide({ onClose }: { onClose: () => void }) {
           </div>
           <div className="mt-2 text-sm font-semibold text-foreground">Firecrawl</div>
           <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
-            The app works without it — research falls back to the LLM's general knowledge, and
-            brand pull guesses a logo from the domain. With Firecrawl connected, the
+            The app works without it — research falls back to the LLM's general knowledge, and brand
+            pull guesses a logo from the domain. With Firecrawl connected, the
             <span className="font-medium text-foreground"> deep research</span> mode scrapes the
             prospect's actual website so prospect intel is grounded in real copy, and{" "}
             <span className="font-medium text-foreground">pull branding</span> can extract their
@@ -3398,9 +3450,7 @@ async function loadImageForPdf(
     try {
       const proxied = await proxyImageAsDataUrl({ data: { url } });
       srcDataUrl = proxied.dataUrl;
-      isSvg =
-        proxied.dataUrl.startsWith("data:image/svg") ||
-        /\.svg(\?|#|$)/i.test(url);
+      isSvg = proxied.dataUrl.startsWith("data:image/svg") || /\.svg(\?|#|$)/i.test(url);
     } catch {
       srcDataUrl = null;
     }
@@ -3419,9 +3469,7 @@ async function loadImageForPdf(
     const natH = img.naturalHeight || img.height || 1;
     // Always rasterize through a canvas so jsPDF gets a clean PNG (also
     // handles SVGs, which addImage cannot consume directly).
-    const scale = isSvg
-      ? Math.max(1, rasterTargetPx / Math.max(natW, natH))
-      : 1;
+    const scale = isSvg ? Math.max(1, rasterTargetPx / Math.max(natW, natH)) : 1;
     const cw = Math.max(1, Math.round(natW * scale));
     const ch = Math.max(1, Math.round(natH * scale));
     const canvas = document.createElement("canvas");
@@ -3440,12 +3488,7 @@ async function loadImageForPdf(
 }
 
 /** Fit an image of (w, h) into a max box, preserving aspect ratio. */
-function fitBox(
-  w: number,
-  h: number,
-  maxW: number,
-  maxH: number,
-): { w: number; h: number } {
+function fitBox(w: number, h: number, maxW: number, maxH: number): { w: number; h: number } {
   if (w <= 0 || h <= 0) return { w: maxW, h: maxH };
   const s = Math.min(maxW / w, maxH / h);
   return { w: w * s, h: h * s };
@@ -3474,8 +3517,14 @@ const PRESETS: Record<BlockType, { label: string; instruction: string }[]> = {
   ],
   exec_summary: [
     { label: "More concise", instruction: "Cut to half the length. Keep all key numbers." },
-    { label: "Lead with impact", instruction: "Restructure to lead with business impact, not setup." },
-    { label: "CFO-ready", instruction: "Rewrite for a CFO audience — finance language, payback-focused." },
+    {
+      label: "Lead with impact",
+      instruction: "Restructure to lead with business impact, not setup.",
+    },
+    {
+      label: "CFO-ready",
+      instruction: "Rewrite for a CFO audience — finance language, payback-focused.",
+    },
   ],
   why_we_fit_item: [
     { label: "More specific", instruction: "Make it more specific to the prospect's context." },
@@ -3490,7 +3539,10 @@ const PRESETS: Record<BlockType, { label: string; instruction: string }[]> = {
   cta: [
     { label: "More urgent", instruction: "Add urgency without being pushy." },
     { label: "Soft ask", instruction: "Make it a softer, lower-friction next step." },
-    { label: "Concrete", instruction: "Make the next step very concrete — name a meeting type and length." },
+    {
+      label: "Concrete",
+      instruction: "Make the next step very concrete — name a meeting type and length.",
+    },
   ],
 };
 
@@ -3605,9 +3657,7 @@ function buildShareUrl(dealId: string): string {
     host.endsWith(".lovableproject.com") ||
     host === "localhost" ||
     host === "127.0.0.1";
-  const base = isPreview
-    ? "https://roi-sales-companion.lovable.app"
-    : window.location.origin;
+  const base = isPreview ? "https://roi-sales-companion.lovable.app" : window.location.origin;
   return `${base}/share/${dealId}`;
 }
 
@@ -3686,8 +3736,8 @@ function ShareView({
             Let {prospectCompany || "your prospect"} try the calculator
           </h3>
           <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-            Anyone with this link can adjust the inputs and see the projected ROI
-            in real time. No sign-in required.
+            Anyone with this link can adjust the inputs and see the projected ROI in real time. No
+            sign-in required.
           </p>
         </div>
 
@@ -3727,12 +3777,12 @@ function ShareView({
               </div>
               <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
                 <p>
-                  Drop the link into an email, calendar invite, or Slack DM —
-                  or have your prospect scan the QR on screen.
+                  Drop the link into an email, calendar invite, or Slack DM — or have your prospect
+                  scan the QR on screen.
                 </p>
                 <p>
-                  The calculator opens with the inputs you set here. Their tweaks
-                  stay local to their session — your deal isn't affected.
+                  The calculator opens with the inputs you set here. Their tweaks stay local to
+                  their session — your deal isn't affected.
                 </p>
                 <button
                   onClick={open}
@@ -3870,9 +3920,7 @@ function PdfPreview({
     </div>
   );
 
-  const sideRail = (
-    <></>
-  );
+  const sideRail = <></>;
 
   const fits = data.why_we_fit;
   const tps = data.talking_points;
@@ -3889,10 +3937,14 @@ function PdfPreview({
   const brandBody = (deal.prospect_brand?.bodyFont || "").trim();
   const canvasStyle: React.CSSProperties = {
     ...(brandHeading
-      ? ({ ["--report-heading-font" as string]: `"${brandHeading}", ui-sans-serif, system-ui` } as React.CSSProperties)
+      ? ({
+          ["--report-heading-font" as string]: `"${brandHeading}", ui-sans-serif, system-ui`,
+        } as React.CSSProperties)
       : {}),
     ...(brandBody
-      ? ({ ["--report-body-font" as string]: `"${brandBody}", ui-sans-serif, system-ui` } as React.CSSProperties)
+      ? ({
+          ["--report-body-font" as string]: `"${brandBody}", ui-sans-serif, system-ui`,
+        } as React.CSSProperties)
       : {}),
     ...(brandBody ? { fontFamily: "var(--report-body-font)" } : {}),
   };
@@ -3901,7 +3953,9 @@ function PdfPreview({
     <div className="space-y-6 pb-6" style={canvasStyle}>
       <div className="max-w-[640px] mx-auto flex items-center justify-between text-xs text-muted-foreground">
         <span className="font-mono uppercase tracking-wider">
-          {editable ? "Edit in place · what you see is what exports" : "Pages match the exported PDF"}
+          {editable
+            ? "Edit in place · what you see is what exports"
+            : "Pages match the exported PDF"}
         </span>
         {editable && (
           <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider">
@@ -3947,17 +4001,16 @@ function PdfPreview({
                       )}
                       <span
                         className="text-base sm:text-lg font-bold tracking-tight text-neutral-900 truncate"
-                        style={brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined}
+                        style={
+                          brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined
+                        }
                       >
                         {deal.prospect_company || "Prospect"}
                       </span>
                     </div>
                   </div>
                   {/* Divider */}
-                  <div
-                    className="h-10 w-px"
-                    style={{ background: `${accent}33` }}
-                  />
+                  <div className="h-10 w-px" style={{ background: `${accent}33` }} />
                   {/* Presented by — our company */}
                   <div className="min-w-0 text-right">
                     <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-neutral-400">
@@ -3966,7 +4019,9 @@ function PdfPreview({
                     <div className="mt-2 flex items-center justify-end gap-3 min-h-[2.5rem]">
                       <span
                         className="text-base sm:text-lg font-bold tracking-tight text-neutral-900 truncate"
-                        style={brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined}
+                        style={
+                          brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined
+                        }
                       >
                         {brand.company_name || "Your Company"}
                       </span>
@@ -3980,10 +4035,7 @@ function PdfPreview({
                     </div>
                   </div>
                 </div>
-                <div
-                  className="mt-6 h-px w-full"
-                  style={{ background: `${accent}1f` }}
-                />
+                <div className="mt-6 h-px w-full" style={{ background: `${accent}1f` }} />
               </div>
               <div className="mt-auto pb-2">
                 <p
@@ -4000,7 +4052,9 @@ function PdfPreview({
                       ariaLabel="Headline"
                       placeholder="Headline"
                       className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight"
-                      style={brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined}
+                      style={
+                        brandHeading ? { fontFamily: "var(--report-heading-font)" } : undefined
+                      }
                     />
                     <AIAssist
                       blockType="headline"
@@ -4095,10 +4149,7 @@ function PdfPreview({
                     key={l}
                     className="relative rounded-lg border border-neutral-200 bg-neutral-50/50 p-3 pl-4 overflow-hidden"
                   >
-                    <div
-                      className="absolute inset-y-0 left-0 w-1"
-                      style={{ background: accent }}
-                    />
+                    <div className="absolute inset-y-0 left-0 w-1" style={{ background: accent }} />
                     <p className="text-[8px] font-bold tracking-wider uppercase text-neutral-500">
                       {l}
                     </p>
@@ -4143,10 +4194,7 @@ function PdfPreview({
         return (
           <PageShell editable={editable} className={pageClass}>
             {sideRail}
-            <div
-              className="relative flex flex-col p-8 sm:p-10 pt-10 gap-6"
-              style={innerStyle}
-            >
+            <div className="relative flex flex-col p-8 sm:p-10 pt-10 gap-6" style={innerStyle}>
               <FieldsBlock
                 title="Investment parameters"
                 fields={template.parameters}
@@ -4177,10 +4225,7 @@ function PdfPreview({
           return (
             <PageShell editable={editable} className={pageClass}>
               {sideRail}
-              <div
-                className="relative flex flex-col p-8 sm:p-10 pt-10"
-                style={innerStyle}
-              >
+              <div className="relative flex flex-col p-8 sm:p-10 pt-10" style={innerStyle}>
                 <div className="flex items-center justify-between">
                   <SectionLabel accent={accent}>Why This Fits</SectionLabel>
                   {editable && (
@@ -4209,9 +4254,7 @@ function PdfPreview({
                         <>
                           <AutoTextarea
                             value={p}
-                            onChange={(e) =>
-                              edit!.updateList("why_we_fit", i, e.target.value)
-                            }
+                            onChange={(e) => edit!.updateList("why_we_fit", i, e.target.value)}
                             ariaLabel={`Why we fit point ${i + 1}`}
                             placeholder="A reason this is the right fit…"
                             className="flex-1 text-[11px] leading-relaxed text-neutral-700"
@@ -4220,9 +4263,7 @@ function PdfPreview({
                             <AIAssist
                               blockType="why_we_fit_item"
                               original={p}
-                              onApply={(t) =>
-                                edit!.updateList("why_we_fit", i, t)
-                              }
+                              onApply={(t) => edit!.updateList("why_we_fit", i, t)}
                               context={aiCtxShort}
                             />
                             <button
@@ -4263,10 +4304,7 @@ function PdfPreview({
           return (
             <PageShell editable={editable} className={pageClass}>
               {sideRail}
-              <div
-                className="relative flex flex-col p-8 sm:p-10 pt-10"
-                style={innerStyle}
-              >
+              <div className="relative flex flex-col p-8 sm:p-10 pt-10" style={innerStyle}>
                 <div className="flex items-center justify-between">
                   <SectionLabel accent={accent}>Key Discussion Points</SectionLabel>
                   {editable && (
@@ -4293,9 +4331,7 @@ function PdfPreview({
                         <>
                           <AutoTextarea
                             value={p}
-                            onChange={(e) =>
-                              edit!.updateList("talking_points", i, e.target.value)
-                            }
+                            onChange={(e) => edit!.updateList("talking_points", i, e.target.value)}
                             ariaLabel={`Talking point ${i + 1}`}
                             placeholder="A point to raise in the next meeting…"
                             className="flex-1"
@@ -4304,9 +4340,7 @@ function PdfPreview({
                             <AIAssist
                               blockType="talking_point"
                               original={p}
-                              onApply={(t) =>
-                                edit!.updateList("talking_points", i, t)
-                              }
+                              onApply={(t) => edit!.updateList("talking_points", i, t)}
                               context={aiCtxShort}
                             />
                             <button
@@ -4478,7 +4512,12 @@ function ReportEditor({
         .select("id,name,content,updated_at")
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (rows ?? []) as { id: string; name: string; content: ReportData; updated_at: string }[];
+      return (rows ?? []) as {
+        id: string;
+        name: string;
+        content: ReportData;
+        updated_at: string;
+      }[];
     },
   });
 
@@ -5048,8 +5087,7 @@ function ReportEditor({
   // it away from the near-black default.
   const theme = getBrandTheme(deal.color_theme);
   const customPrimary =
-    brand.brand_primary_color &&
-    brand.brand_primary_color.toLowerCase() !== "#0f0f0f"
+    brand.brand_primary_color && brand.brand_primary_color.toLowerCase() !== "#0f0f0f"
       ? brand.brand_primary_color
       : null;
   const accent = customPrimary || theme.from;
@@ -5084,9 +5122,7 @@ function ReportEditor({
                     ? "Edit in place · what you see is what exports"
                     : "Share with prospect"}
                 </span>
-                <span className="sm:hidden">
-                  {view === "edit" ? "Edit" : "Share"}
-                </span>
+                <span className="sm:hidden">{view === "edit" ? "Edit" : "Share"}</span>
               </h2>
             </div>
           </div>
@@ -5234,9 +5270,7 @@ function ReportEditor({
                   onClick={() => setView(t.id)}
                   className={cn(
                     "flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider rounded-md transition",
-                    active
-                      ? "text-white shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
+                    active ? "text-white shadow-sm" : "text-muted-foreground hover:text-foreground",
                   )}
                   style={active ? { background: accentGradient } : undefined}
                 >

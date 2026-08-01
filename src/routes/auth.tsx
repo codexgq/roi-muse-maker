@@ -88,7 +88,10 @@ function AuthPage() {
         <div
           aria-hidden
           className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full opacity-60 blur-3xl lg:hidden"
-          style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 22%, transparent), transparent)" }}
+          style={{
+            background:
+              "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 22%, transparent), transparent)",
+          }}
         />
         <motion.div
           initial={{ opacity: 0, y: 14 }}
@@ -129,7 +132,9 @@ function AuthPage() {
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <span className={`relative ${mode === m ? "text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  className={`relative ${mode === m ? "text-foreground" : "text-muted-foreground"}`}
+                >
                   {m === "signin" ? "Sign in" : "Create account"}
                 </span>
               </button>
@@ -147,9 +152,17 @@ function AuthPage() {
             >
               <h1 className="text-balance text-[28px] font-bold leading-[1.1] tracking-tight sm:text-3xl">
                 {mode === "signin" ? (
-                  <>Welcome back.<br /><span className="text-muted-foreground">Pick up where you left off.</span></>
+                  <>
+                    Welcome back.
+                    <br />
+                    <span className="text-muted-foreground">Pick up where you left off.</span>
+                  </>
                 ) : (
-                  <>Start closing<br /><span className="text-muted-foreground">with real numbers.</span></>
+                  <>
+                    Start closing
+                    <br />
+                    <span className="text-muted-foreground">with real numbers.</span>
+                  </>
                 )}
               </h1>
             </motion.div>
@@ -247,7 +260,8 @@ function AuthPage() {
           </form>
 
           <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground">
-            By continuing you agree to a private, single-user workspace. Your deals and templates stay scoped to your account.
+            By continuing you agree to a private, single-user workspace. Your deals and templates
+            stay scoped to your account.
           </p>
         </motion.div>
       </div>
@@ -258,7 +272,16 @@ function AuthPage() {
 /* ─────────── Animated input ─────────── */
 
 function Field({
-  icon, label, type, value, onChange, autoComplete, minLength, focused, onFocus, onBlur,
+  icon,
+  label,
+  type,
+  value,
+  onChange,
+  autoComplete,
+  minLength,
+  focused,
+  onFocus,
+  onBlur,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -298,10 +321,9 @@ function Field({
             animate={{
               y: focused || filled ? -10 : 8,
               scale: focused || filled ? 0.78 : 1,
-              color:
-                focused
-                  ? "color-mix(in oklab, var(--primary) 80%, var(--foreground))"
-                  : "var(--muted-foreground)",
+              color: focused
+                ? "color-mix(in oklab, var(--primary) 80%, var(--foreground))"
+                : "var(--muted-foreground)",
             }}
             transition={{ type: "spring", stiffness: 380, damping: 28 }}
             className="pointer-events-none absolute left-3 top-2.5 origin-left font-mono text-[11px] uppercase tracking-[0.2em]"
@@ -386,9 +408,7 @@ function ShowcasePanel({ mode }: { mode: "signin" | "signup" }) {
             className="max-w-md text-[15px] leading-relaxed text-white/65"
           >
             Powerful sales tool for securing and serving clients.
-
           </motion.p>
-
         </div>
 
         <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.24em] text-white/45">
@@ -401,8 +421,16 @@ function ShowcasePanel({ mode }: { mode: "signin" | "signup" }) {
 }
 
 function Stat({
-  icon, label, value, delay,
-}: { icon: React.ReactNode; label: string; value: string; delay: number }) {
+  icon,
+  label,
+  value,
+  delay,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  delay: number;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
